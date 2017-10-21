@@ -7,7 +7,7 @@
 
 ;; define your app data so that it doesn't get over-written on reload
 
-(defonce app-state (atom {:text "Hello world!"}))
+(defonce app-state (atom {:annotations {2 "hua"}}))
 
 (defn app []
   [:div#video])
@@ -15,14 +15,33 @@
 (reagent/render-component [app]
                           (. js/document (getElementById "app")))
 
+(defn state-change
+  [state]
+  (println (aget state "data")))
+
 (def youtube
   (let [Player (.-Player js/YT)]
       (Player. "video"
-          (-> {:videoId "TDs-OPZsbUE"
-              :events {:onReady #(println "loaded") :onStateChange #(println "state change")}}
+          (-> {:videoId "TDs-OPZsbUE"}
+              ;  :events {:onReady #(println "loaded") :onStateChange state-change} 
            clj->js))))
 
-; (js/setTimeout #(println (.getPlayerState youtube)) 3000)
+; (println ((@app-state :annotations) 10))
+
+; (println (filter (fn [k v] (<= (- k 5) k (+ k 5))) (@app-state :annotations)))
+
+; (println (@app-state :annotations))
+
+(println (map (fn [key value] (let [k (int key)] (<= (- k 5) k (+ k 5)))) (@app-state :annotations)))
+
+(defn find-annotations
+  []
+  (let [time (int (.getCurrentTime youtube))]
+   (println (filter (fn [k v] (<= (- k 5) k (+ k 5))) (@app-state :annotations)))))
+
+; (find-annotations)
+
+; (js/setInterval #(println (int (.getCurrentTime youtube))) 1000)
 
 (defn on-js-reload [])
   ;; optionally touch your app-state to force rerendering depending on
