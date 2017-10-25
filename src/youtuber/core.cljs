@@ -1,47 +1,50 @@
 (ns youtuber.core
-    (:require [reagent.core :as reagent :refer [atom]]))
+    (:require [reagent.core :as reagent]))
 
 (enable-console-print!)
 
 (println "This text is printed from src/youtuber/core.cljs. Go ahead and edit it and see reloading in action.")
 
-;; define your app data so that it doesn't get over-written on reload
+(def css-transition-group
+  (reagent/adapt-react-class js/React.addons.CSSTransitionGroup))
 
-(defonce app-state (atom {:annotations {2 "hua"}}))
+(def app-state (reagent/atom {:time 0 :annotations {2 "hua" 3 "doda" 7 "uhh" 10 "wheeee"}}))
 
+(defn within-range
+  [middle key v]
+  (let [k (int (first key))]
+    (<= (- k 5) middle (+ k 5))))
+  
+(def shown-annotations (reagent.ratom/reaction (reverse (filter (partial within-range (@app-state :time)) (@app-state :annotations)))))
+
+(defn annotation-panel [[time comment]]
+  [:div.annotation {:key time}
+   [:span.time time ":"] 
+   [:span.comment comment]])
+  
 (defn app []
-  [:div#video])
+  [:div.wrapper
+   [:h1.title (@app-state :time)]
+   [:div#video]
+   [:div.annotations-container
+    [css-transition-group {:transition-name "annotation"}
+     (map annotation-panel @shown-annotations)]]])
 
 (reagent/render-component [app]
-                          (. js/document (getElementById "app")))
-
-(defn state-change
-  [state]
-  (println (aget state "data")))
+                      (. js/document (getElementById "app")))
 
 (def youtube
   (let [Player (.-Player js/YT)]
       (Player. "video"
           (-> {:videoId "TDs-OPZsbUE"}
-              ;  :events {:onReady #(println "loaded") :onStateChange state-change} 
            clj->js))))
 
-; (println ((@app-state :annotations) 10))
-
-; (println (filter (fn [k v] (<= (- k 5) k (+ k 5))) (@app-state :annotations)))
-
-; (println (@app-state :annotations))
-
-(println (map (fn [key value] (let [k (int key)] (<= (- k 5) k (+ k 5)))) (@app-state :annotations)))
-
-(defn find-annotations
+(defn get-time
   []
-  (let [time (int (.getCurrentTime youtube))]
-   (println (filter (fn [k v] (<= (- k 5) k (+ k 5))) (@app-state :annotations)))))
+  (let [current-time (int (.getCurrentTime youtube))]
+   (swap! app-state assoc-in [:time] current-time)))
 
-; (find-annotations)
-
-; (js/setInterval #(println (int (.getCurrentTime youtube))) 1000)
+(js/setInterval get-time 1000)
 
 (defn on-js-reload [])
   ;; optionally touch your app-state to force rerendering depending on
