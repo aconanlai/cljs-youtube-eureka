@@ -61,6 +61,10 @@ table {
   margin: 10px;
 }
 
+#video {
+  margin-bottom: 30px;
+}
+
 .annotations-container {
   margin-top: 30px;
   padding: 10px;
