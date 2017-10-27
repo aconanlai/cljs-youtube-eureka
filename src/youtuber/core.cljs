@@ -14,7 +14,7 @@
 
 ;; state
 
-(def app-state (reagent/atom {:time 0 :form-open false :youtube nil :player nil :annotations {2 "hua" 3 "doda" 7 "uhh" 10 "wheeee"}}))
+(def app-state (reagent/atom {:time 0 :form-open false :comment "" :annotations {2 "this ones bretty good" 7 "hi hello" 10 "whoowapap" 15 "dodah" 18 "this is my favorite part"}}))
 
 (defn within-range
   [middle key v]
@@ -48,14 +48,23 @@
 
 (defn add-form []
   (if (@app-state :form-open)
-    [:span "hello"]))
+      [:form
+       [:textarea {:id "comment" :name "comment" :value (@app-state :comment)
+                   :on-change #(swap! app-state assoc-in [:comment] (-> % .-target .-value))}]]))
+
+;; youtube component and app timer
+
+(defn get-time
+  []
+  (let [current-time (int (.getCurrentTime js/player))]
+   (swap! app-state assoc-in [:time] current-time)))
 
 (defn youtube
   [id]
-  (def player
+  (set! js/player
     (let [Player (.-Player js/YT)]
       (Player. "video"
-        (-> {:videoId id}
+        (-> {:videoId id :playerVars {:rel 0}}
           clj->js)))))
 
 (defn video-page []
@@ -77,9 +86,6 @@
 (defn about-page []
   [:h1 "about"])
 
-; (defn video-page []
-;   [:h1 (@app-state :youtube)])
-
 ;; routing
 
 (defn current-page []
@@ -95,39 +101,21 @@
   (session/put! :current-page #'about-page))
 
 (secretary/defroute "/:video-id" {:as params}
-  (session/put! :current-page #'video-page)
-  (swap! app-state assoc-in [:youtube] (:video-id params)))
+  (session/put! :current-page #'video-page))
 
 (defn hook-browser-navigation! []
   (doto (History.)
     (events/listen
      EventType/NAVIGATE
      (fn [event]
-       (js/console.log event)
        (js/setTimeout #(youtube (.substring (.-token event) 1)) 0)
+       (set! js/timer (js/setInterval get-time 1000))
       (secretary/dispatch! (.-token event))))
    (.setEnabled true)))
-
-;; youtube component and app timer
-
-(defn get-time
-  []
-  (let [current-time (int (.getCurrentTime youtube))]
-   (swap! app-state assoc-in [:time] current-time)))
-
-; (js/setInterval get-time 1000)
 
 (hook-browser-navigation!)
 
 (reagent/render-component [current-page] (.getElementById js/document "app"))
-
-; (js/setTimeout #(println (or (@app-state :youtube) "TDs-OPZsbUE")) 2000)
-
-; (def youtube
-;  (let [Player (.-Player js/YT)]
-;      (Player. "video"
-;        (-> {:videoId (or (@app-state :youtube) "TDs-OPZsbUE")}
-;          clj->js))))
 
 (defn on-js-reload [])
   ;; optionally touch your app-state to force rerendering depending on
