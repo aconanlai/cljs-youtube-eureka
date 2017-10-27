@@ -14,7 +14,7 @@
 
 ;; state
 
-(def app-state (reagent/atom {:time 0 :form-open :youtube nil false :annotations {2 "hua" 3 "doda" 7 "uhh" 10 "wheeee"}}))
+(def app-state (reagent/atom {:time 0 :form-open false :youtube nil :player nil :annotations {2 "hua" 3 "doda" 7 "uhh" 10 "wheeee"}}))
 
 (defn within-range
   [middle key v]
@@ -22,8 +22,8 @@
     (<= (- k 5) middle (+ k 5))))
   
 (def shown-annotations (reagent.ratom/reaction (reverse (filter (partial within-range (@app-state :time)) (@app-state :annotations)))))
-
-
+                                          
+;; "TDs-OPZsbUE"
 
 ;; funcs
 
@@ -50,12 +50,13 @@
   (if (@app-state :form-open)
     [:span "hello"]))
 
-; (defn youtube
-;   []
-;   (let [Player (.-Player js/YT)]
-;       (swap! app-state assoc-in [:youtube] (Player. "video"
-;                                             (-> {:videoId "TDs-OPZsbUE"}
-;                                              clj->js)))))
+(defn youtube
+  [id]
+  (def player
+    (let [Player (.-Player js/YT)]
+      (Player. "video"
+        (-> {:videoId id}
+          clj->js)))))
 
 (defn video-page []
   [:div.wrapper
@@ -102,17 +103,17 @@
     (events/listen
      EventType/NAVIGATE
      (fn [event]
-       (secretary/dispatch! (.-token event))))
-    (.setEnabled true)))
+       (js/console.log event)
+       (js/setTimeout #(youtube (.substring (.-token event) 1)) 0)
+      (secretary/dispatch! (.-token event))))
+   (.setEnabled true)))
 
 ;; youtube component and app timer
 
-
-
-; (defn get-time
-;   []
-;   (let [current-time (int (.getCurrentTime youtube))]
-;    (swap! app-state assoc-in [:time] current-time)))
+(defn get-time
+  []
+  (let [current-time (int (.getCurrentTime youtube))]
+   (swap! app-state assoc-in [:time] current-time)))
 
 ; (js/setInterval get-time 1000)
 
@@ -120,11 +121,13 @@
 
 (reagent/render-component [current-page] (.getElementById js/document "app"))
 
-(def youtube
-   (let [Player (.-Player js/YT)]
-       (Player. "video"
-         (-> {:videoId (or (@app-state :youtube) "TDs-OPZsbUE")}
-           clj->js))))
+; (js/setTimeout #(println (or (@app-state :youtube) "TDs-OPZsbUE")) 2000)
+
+; (def youtube
+;  (let [Player (.-Player js/YT)]
+;      (Player. "video"
+;        (-> {:videoId (or (@app-state :youtube) "TDs-OPZsbUE")}
+;          clj->js))))
 
 (defn on-js-reload [])
   ;; optionally touch your app-state to force rerendering depending on
