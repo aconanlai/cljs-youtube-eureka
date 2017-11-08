@@ -12,7 +12,8 @@
                  [reagent-utils "0.1.2"]
                  [secretary "1.2.1"]
                  [reagent "0.6.1" :exclusions [cljsjs/react]]
-                 [cljsjs/react-with-addons "15.4.1-0"]]
+                 [cljsjs/react-with-addons "15.4.1-0"]
+                 [cljs-ajax "0.2.6"]]
 
   :plugins [[lein-figwheel "0.5.13"]
             [lein-cljsbuild "1.1.7" :exclusions [[org.clojure/clojure]]]]
