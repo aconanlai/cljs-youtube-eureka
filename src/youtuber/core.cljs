@@ -105,7 +105,7 @@
       [(keyword k) v])))
 
 (defn handler [response]
-  (swap! app-state assoc :annotations (map keywordize (:comments (keywordize (js->clj response :keywordize-keys true))))))
+  (swap! app-state assoc :annotations (map keywordize (:comments (keywordize (js->clj response))))))
 
 (defn error-handler [{:keys [status status-text]}]
   (.log js/console (str "something bad happened: " status " " status-text)))
