@@ -62,8 +62,35 @@ table {
 }
 
 #video {
+}
+
+/* timeline */
+
+.timeline {
+  position: relative;
+  height: 30px;
+  width: 640px;
+  background: #e6ffff;
   margin-bottom: 30px;
 }
+
+.current-time {
+  position: absolute;
+  height: 30px;
+  width: 1px;
+  background-color: red;
+  z-index: 10;
+  opacity: 0.8;
+}
+
+.annotation-marker {
+  position: absolute;
+  height: 30px;
+  width: 1px;
+  background-color: green;
+}
+
+/* annotations */
 
 .annotations-container {
   margin-top: 30px;
