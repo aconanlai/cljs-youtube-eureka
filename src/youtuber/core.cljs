@@ -38,14 +38,6 @@
 (def shown-annotations
   (reagent.ratom/reaction (reverse (filter (partial within-range (@app-state :time)) (@app-state :annotations)))))
 
-(defn get-timeline-position
-  "returns pixel position of marker based on duration of video"
-  [time]
-  (let [duration (@app-state :duration)]
-    (if (= duration 0)
-     0
-     (* 640 (/ time duration)))))
-
 ;; http
 (defn keywordize
   [hashmap]
@@ -70,14 +62,18 @@
 
 (defn send-comment
   []
-  (POST "http://localhost:3000/video"
-        {:params {:id (@app-state :id)
-                  :time (@app-state :time)
-                  :comment (@app-state :comment)}
-         :format :json
-        ;  :headers {:content-type "application/x-www-form-urlencoded"}
-         :handler post-handler
-         :error-handler error-handler}))
+  (let [payload {:id (@app-state :id)
+                   :time (@app-state :time)
+                   :comment (@app-state :comment)}]
+   (do
+    (swap! app-state update-in [:annotations] #(sort-by :time (into % [payload])))
+    (log (@app-state :annotations))
+    (log "uhh")
+    (POST "http://localhost:3000/video"
+          {:params payload
+           :format :json
+           :handler post-handler
+           :error-handler error-handler}))))
 
 ;; funcs
 
@@ -90,6 +86,20 @@
   (do
     (.pauseVideo js/player)
     (swap! app-state update-in [:form-open] #(not %))))
+
+(defn seconds->timeline
+  "returns pixel position of marker based on duration of video"
+  [time]
+  (let [duration (@app-state :duration)]
+    (if (= duration 0)
+     0
+     (* 640 (/ time duration)))))
+
+(defn timeline->seconds
+  "returns time in seconds from pixel position of timeline"
+  [px]
+  (let [duration (@app-state :duration)]
+   (* duration (/ px 640))))
 
 ;; components
 
@@ -117,18 +127,19 @@
   [{:keys [time comment]}]
   [:div.annotation-marker
    {:key (str time comment)
-    :style {:left (str (get-timeline-position time) "px")}}])
+    :style {:left (str (seconds->timeline time) "px")}}])
 
 ;; TODO: change time of video
 (defn on-click-timeline
   [e]
-  (log (.-offsetX (.-nativeEvent e))))
+  (let [px (.-offsetX (.-nativeEvent e))]
+    (.seekTo js/player (timeline->seconds px))))
 
 (defn timeline []
   [:div.timeline
     {:on-click on-click-timeline}
    [:div.current-time
-    {:style {:left (get-timeline-position (@app-state :time))}}]
+    {:style {:left (seconds->timeline (@app-state :time))}}]
    (doall (map annotation-marker (@app-state :annotations)))])
 
 ;; youtube component and app timer
