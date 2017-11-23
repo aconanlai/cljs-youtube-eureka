@@ -43,8 +43,41 @@
   [time]
   (let [duration (@app-state :duration)]
     (if (= duration 0)
-    0
-    (* 640 (/ time duration)))))
+     0
+     (* 640 (/ time duration)))))
+
+;; http
+(defn keywordize
+  [hashmap]
+  (into {} 
+    (for [[k v] hashmap] 
+      [(keyword k) v])))
+
+(defn get-handler [response]
+  (swap! app-state assoc :annotations (map keywordize (:comments (keywordize (js->clj response))))))
+
+(defn post-handler [response]
+  (log response))
+
+(defn error-handler [{:keys [status status-text]}]
+  (.log js/console (str "something bad happened: " status " " status-text)))
+
+(defn get-comments [id]
+  (GET (str "http://localhost:3000/video/" id)
+   {:handler get-handler
+    :keywords? true
+    :error-handler error-handler}))
+
+(defn send-comment
+  []
+  (POST "http://localhost:3000/video"
+        {:params {:id (@app-state :id)
+                  :time (@app-state :time)
+                  :comment (@app-state :comment)}
+         :format :json
+        ;  :headers {:content-type "application/x-www-form-urlencoded"}
+         :handler post-handler
+         :error-handler error-handler}))
 
 ;; funcs
 
@@ -73,14 +106,18 @@
 (defn add-form []
   (if (@app-state :form-open)
       [:form
+       [:div
+        [:span (convert-timestamp (@app-state :time))]]
        [:textarea {:id "comment" :name "comment" :value (@app-state :comment)
-                   :on-change #(swap! app-state assoc-in [:comment] (-> % .-target .-value))}]]))
+                   :on-change #(swap! app-state assoc-in [:comment] (-> % .-target .-value))}]
+       [:div
+        [:button {:type "button" :on-click send-comment} "Submit"]]]))
 
 (defn annotation-marker
   [{:keys [time comment]}]
   [:div.annotation-marker
-  {:key (str time comment)
-  :style {:left (str (get-timeline-position time) "px")}}])
+   {:key (str time comment)
+    :style {:left (str (get-timeline-position time) "px")}}])
 
 ;; TODO: change time of video
 (defn on-click-timeline
@@ -90,9 +127,9 @@
 (defn timeline []
   [:div.timeline
     {:on-click on-click-timeline}
-  [:div.current-time
-  {:style {:left (get-timeline-position (@app-state :time))}}]
-  (doall (map annotation-marker (@app-state :annotations)))])
+   [:div.current-time
+    {:style {:left (get-timeline-position (@app-state :time))}}]
+   (doall (map annotation-marker (@app-state :annotations)))])
 
 ;; youtube component and app timer
 
@@ -106,16 +143,24 @@
   (let [duration (int (.getDuration js/player))]
    (swap! app-state assoc-in [:duration] duration)))
 
+;; TODO get duration and set timer here to handle video change
+(defn handle-state-change
+  [state]
+  (log state))
+
 ;; TODO: use loadVideoById - split this into two functions for initial load and subsequent loads
 (defn youtube
   [id]
   (set! js/player
     (let [Player (.-Player js/YT)]
         (Player. "video"
-          (-> {:videoId id :playerVars {:rel 0} :events {:onReady get-duration}}
+          (-> {
+               :videoId id
+               :playerVars {:rel 0}
+               :events {:onReady get-duration
+                        :onStateChange handle-state-change}}
             clj->js)))))
         
-
 (defn video-page []
   [:div.wrapper
    [:h1.title (@app-state :time)]
@@ -128,32 +173,11 @@
     [css-transition-group {:transition-name "annotation"}
      (map annotation-panel @shown-annotations)]]])
      
-
-
 (defn home-page []
   [:h1 "hua"])
 
 (defn about-page []
   [:h1 "about"])
-
-;; http
-(defn keywordize
-  [hashmap]
-  (into {} 
-    (for [[k v] hashmap] 
-      [(keyword k) v])))
-
-(defn handler [response]
-  (swap! app-state assoc :annotations (map keywordize (:comments (keywordize (js->clj response))))))
-
-(defn error-handler [{:keys [status status-text]}]
-  (.log js/console (str "something bad happened: " status " " status-text)))
-
-(defn get-comments [id]
-  (GET (str "http://localhost:3000/video/" id)
-   {:handler handler
-    :keywords? true
-    :error-handler error-handler}))
 
 ;; routing
 
@@ -181,6 +205,7 @@
         (js/setTimeout #(youtube id) 0)
         (set! js/timer (js/setInterval get-time 1000))
         (get-comments id)
+        (swap! app-state assoc-in [:id] id)
         (secretary/dispatch! (.-token event)))))
    (.setEnabled true)))
 
