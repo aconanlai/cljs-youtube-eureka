@@ -12,6 +12,10 @@
   (let [duration (int (.getDuration js/player))]
    (swap! state/store assoc-in [:duration] duration)))
 
+(defn play-video
+  []
+  (.playVideo js/player))
+
 ;; TODO get duration and set timer here to handle video change
 (defn handle-state-change
   [state]

@@ -34,12 +34,14 @@
 (defn add-form []
   (if (@state/store :form-open)
       [:form
-       [:div
-        [:span (utils/convert-timestamp (@state/store :time))]]
        [:textarea {:id "comment" :name "comment" :value (@state/store :comment)
                    :on-change #(swap! state/store assoc-in [:comment] (-> % .-target .-value))}]
        [:div
-        [:button {:type "button" :on-click actions/send-comment} "Submit"]]]))
+        [:button {
+                  :type "button"
+                  :on-click actions/send-comment
+                  :disabled (= (@state/store :comment) "")}
+                 "Submit"]]]))
 
 (defn timeline->seconds
   "returns time in seconds from pixel position of timeline"
@@ -67,10 +69,9 @@
 
 (defn video-page []
   [:div.wrapper
-   [:h1.title (@state/store :time)]
-   [:h2 (@state/store :duration)]
    [:div#video]
    [timeline]
+   [:h2 (utils/convert-timestamp (@state/store :time))]
    [add-form]
    [add-button]
    [:div.annotations-container

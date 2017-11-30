@@ -2,13 +2,17 @@
   (:require
     [ajax.core :refer [GET POST]]
     [utils]
+    [youtube]
     [state]))
 
 (defn get-handler [response]
   (swap! state/store assoc :annotations (map utils/keywordize (:comments (utils/keywordize (js->clj response))))))
 
 (defn post-handler [response]
-  (utils/log response))
+  (do
+    (youtube/play-video)
+    (swap! state/store assoc-in [:form-open] false)
+    (swap! state/store assoc-in [:comment] "")))
 
 (defn error-handler [{:keys [status status-text]}]
   (utils/log (str "something bad happened: " status " " status-text)))

@@ -36,7 +36,7 @@
      (fn [event]
        (let [id (.substring (.-token event) 1)]
         (js/setTimeout #(youtube/init id) 0)
-        (set! js/timer (js/setInterval youtube/get-time 1000))
+        (set! js/timer (js/setInterval youtube/get-time 100))
         (actions/get-comments id)
         (swap! state/store assoc-in [:id] id)
         (secretary/dispatch! (.-token event)))))
