@@ -35,8 +35,7 @@
      EventType/NAVIGATE
      (fn [event]
        (let [id (.substring (.-token event) 1)]
-        (js/setTimeout #(youtube/init id) 0)
-        (set! js/timer (js/setInterval youtube/get-time 100))
+        (youtube/change-video id)
         (actions/get-comments id)
         (swap! state/store assoc-in [:id] id)
         (secretary/dispatch! (.-token event)))))

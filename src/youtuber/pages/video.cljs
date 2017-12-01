@@ -1,5 +1,6 @@
 (ns pages.video
   (:require [reagent.core :as reagent]
+    [components.loader]
     [utils]
     [actions]
     [state]))
@@ -69,6 +70,7 @@
 
 (defn video-page []
   [:div.wrapper
+   [components.loader/loader-form]
    [:div#video]
    [timeline]
    [:h2 (utils/convert-timestamp (@state/store :time))]
