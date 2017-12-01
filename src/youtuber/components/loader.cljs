@@ -8,10 +8,6 @@
   [id]
   (set! (-> js/window .-location .-hash) (str "#/" id)))
 
-; (defn navigate-to-video
-;   [id]
-;   (.loadVideoById js/player id))
-    
 (defn loader-form []
   [:form
     [:input {:id "loader-form" :name "loader-form" :value (@state/store :loader-value)
