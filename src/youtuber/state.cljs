@@ -9,5 +9,23 @@
                               :comment ""
                               :annotations []}))
 
+; (defn within-range1
+;   [middle annotation]
+;   (let [time (:time annotation)]
+;       (<= (- time 5) middle (+ time 5))))              
+
+(defn within-range
+  [vect middle]
+  (->> vect
+    (drop-while #(< (:time %) (- middle 5)))
+    (take-while #(< (:time %) (+ middle 5)))))
+
+                          
+; (def shown-annotations
+;   (reagent.ratom/reaction (reverse (filter (partial within-range1 (@store :time)) (@store :annotations)))))
+
 (def shown-annotations
-  (reagent.ratom/reaction (reverse (filter (partial utils/within-range (@store :time)) (@store :annotations)))))
+  (reagent.ratom/reaction (within-range (@store :annotations) (@store :time))))
+
+(def all-annotations
+  (reagent.ratom/reaction (@store :annotations)))

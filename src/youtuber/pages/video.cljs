@@ -66,7 +66,7 @@
     {:on-click on-click-timeline}
    [:div.current-time
     {:style {:left (seconds->timeline (@state/store :time))}}]
-   (doall (map annotation-marker (@state/store :annotations)))])
+   (doall (map annotation-marker @state/all-annotations))])
 
 (defn video-page []
   [:div.wrapper

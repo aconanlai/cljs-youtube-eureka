@@ -1,7 +1,6 @@
 (ns components.loader
   (:require [reagent.core :as reagent]
     [utils]
-    [youtube]
     [state]))
 
 (defn navigate-to-video
@@ -17,6 +16,6 @@
               :type "button"
               :on-click #(navigate-to-video (@state/store :loader-value))
               :disabled (= (@state/store :loader-value) "")}
-             "Load Video"]]))
+             "Load Video"]])
 
 

@@ -6,11 +6,6 @@
   [obj]
   (.log js/console obj))
 
-(defn within-range
-  [middle annotation]
-  (let [time (:time annotation)]
-      (<= (- time 5) middle (+ time 5))))
-
 (defn keywordize
   [hashmap]
   (into {} 
