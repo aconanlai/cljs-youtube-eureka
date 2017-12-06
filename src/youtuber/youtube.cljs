@@ -20,9 +20,9 @@
 
 (defn handle-ready
   [state]
-   (do
-     (get-duration)
-     (set! js/timer (js/setInterval get-time 100))))
+  (do
+    (get-duration)
+    (set! js/timer (js/setInterval get-time 100))))
 
 (defn init
   [id]
