@@ -18,12 +18,11 @@
   []
   (.playVideo js/player))
 
-(defn handle-state-change
+(defn handle-ready
   [state]
-  (if (= (aget state "data") -1)
    (do
      (get-duration)
-     (set! js/timer (js/setInterval get-time 100)))))
+     (set! js/timer (js/setInterval get-time 100))))
 
 (defn init
   [id]
@@ -33,7 +32,7 @@
           (-> {
                :videoId id
                :playerVars {:rel 0}
-               :events {:onStateChange handle-state-change}}
+               :events {:onReady handle-ready}}
             clj->js)))))
 
 (defn remove-interval
