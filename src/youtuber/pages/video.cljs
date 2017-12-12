@@ -11,10 +11,11 @@
 (defn seconds->timeline
   "returns pixel position of marker based on duration of video"
   [time]
-  (let [duration (@state/store :duration)]
+  (let [{:keys [duration video-width]} @state/store]
+  
     (if (= duration 0)
      0
-     (* 640 (/ time duration)))))
+     (* video-width (/ time duration)))))
   
 (defn open-form
   []
@@ -47,8 +48,8 @@
 (defn timeline->seconds
   "returns time in seconds from pixel position of timeline"
   [px]
-  (let [duration (@state/store :duration)]
-   (* duration (/ px 640))))
+  (let [{:keys [duration video-width]} @state/store]
+   (* duration (/ px video-width))))
 
 (defn annotation-marker
   [{:keys [time comment]}]

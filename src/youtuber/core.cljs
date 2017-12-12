@@ -41,6 +41,13 @@
         (secretary/dispatch! (.-token event)))))
    (.setEnabled true)))
 
+(defn set-video-width
+  []
+  (swap! state/store assoc-in [:video-width] (min 700 (* (.-innerWidth js/window) 0.5))))
+
+(set-video-width)
+(.addEventListener js/window "resize" set-video-width)
+
 (hook-browser-navigation!)
 
 (reagent/render-component [current-page] (.getElementById js/document "app"))

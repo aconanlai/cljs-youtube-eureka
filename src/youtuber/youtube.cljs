@@ -27,12 +27,16 @@
 (defn init
   [id]
   (set! js/player
-    (let [Player (.-Player js/YT)]
+    (let [Player (.-Player js/YT)
+          width (@state/store :video-width)
+          height (* width 0.6)]
         (Player. "video"
           (-> {
                :videoId id
                :playerVars {:rel 0}
-               :events {:onReady handle-ready}}
+               :events {:onReady handle-ready}
+               :width width
+               :height height}
             clj->js)))))
 
 (defn remove-interval
