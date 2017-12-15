@@ -44,8 +44,8 @@
 (defn set-video-width
   []
   (let [window-width (.-innerWidth js/window)
-        width (* window-width 0.5)
-        chosen-width (if (< width 700) window-width width)]
+        width (min 700 (* (.-innerWidth js/window) 0.5))
+        chosen-width (if (< window-width 700) window-width width)]
    (do
     (swap! state/store assoc-in [:video-width] chosen-width)
     (youtube/resize-video))))
