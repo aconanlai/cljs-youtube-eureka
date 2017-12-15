@@ -51,3 +51,11 @@
    (remove-interval)
    (js/setTimeout #(init id) 100)))
 
+(defn resize-video
+  []
+  (if (exists? js/player)
+   (let [width (@state/store :video-width)
+         height (* width 0.6)]
+    (.setSize js/player width height))))
+  
+
