@@ -37,6 +37,7 @@
        (let [id (.substring (.-token event) 1)]
         (youtube/change-video id)
         (actions/get-comments id)
+        (actions/get-related id)
         (swap! state/store assoc-in [:id] id)
         (secretary/dispatch! (.-token event)))))
    (.setEnabled true)))

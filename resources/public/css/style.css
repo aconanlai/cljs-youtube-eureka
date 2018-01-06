@@ -46,6 +46,9 @@ table {
 	border-collapse: collapse;
 	border-spacing: 0;
 }
+* {
+  box-sizing: border-box;
+}
 
 /* youtuber */
 
@@ -60,9 +63,6 @@ table {
 .title {
   font-size: 3em;
   margin: 10px;
-}
-
-#video {
 }
 
 /* timeline */
@@ -94,19 +94,19 @@ table {
 /* annotations */
 
 .annotations-container {
-  margin-top: 30px;
+  margin: 30px 0px;
   padding: 10px;
   border: 2px solid black;
   text-align: left;
 }
 
-.annotation {
+.annotations-container__annotation {
   margin: 5px;
   padding: 5px;
   border-bottom: 1px solid black;
 }
 
-.time {
+.annotations-container__time {
   font-style: italic;
   margin-right: 5px;
 }
@@ -127,6 +127,32 @@ table {
   opacity: 1;
   height: 2em;
   opacity: 1;
+}
+
+/* related videos */
+.related-videos {
+  width: 100%;
+  height: 400px;
+  background: lightblue;
+  padding: 1em;
+}
+
+.related-videos__title {
+  font-size: 2em;
+  color: red;
+  margin-bottom: 10px;
+}
+
+.related-videos__columns {
+  display: flex;
+  justify-content: space-around;
+  height: 100%;
+}
+
+.related-videos__video {
+  height: 100%;
+  width: 40%;
+  background: yellow;
 }
 
 @media only screen and (max-width: 700px) {

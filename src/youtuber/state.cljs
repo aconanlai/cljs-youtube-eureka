@@ -8,8 +8,9 @@
                               :form-open false
                               :comment ""
                               :video-width 0
-                              :annotations []}))    
-
+                              :annotations []
+                              :related []}))
+                                  
 (defn within-range
   [vect middle]
   (->> vect

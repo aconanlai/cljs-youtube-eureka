@@ -25,9 +25,9 @@
 
 (defn annotation-panel [annotation]
   (let [{time :time comment :comment} annotation]
-   [:div.annotation {:key (str time comment)}
-    [:span.time (utils/convert-timestamp time) ":"] 
-    [:span.comment comment]]))
+   [:div.annotations-container__annotation {:key (str time comment)}
+    [:span.annotations-container__time (utils/convert-timestamp time) ":"] 
+    [:span.annotations-container__comment comment]]))
 
 (defn add-button []
   (if (not (@state/store :form-open))
@@ -69,6 +69,15 @@
     {:style {:left (seconds->timeline (@state/store :time))}}]
    (doall (map annotation-marker @state/all-annotations))])
 
+(defn related-container []
+  (if (< 0 (count (@state/store :related)))
+      [:div.related-videos
+       [:h2.related-videos__title "Related Videos"]
+       [:h2 (:title (:snippet (get (@state/store :related) 1)))]
+       [:div.related-videos__columns
+        [:div.related-videos__video]
+        [:div.related-videos__video]]]))
+
 (defn video-page []
   [:div.wrapper
    [components.loader/loader-form]
@@ -79,4 +88,6 @@
    [add-button]
    [:div.annotations-container
     [css-transition-group {:transition-name "annotation"}
-     (map annotation-panel @state/shown-annotations)]]])
+     (map annotation-panel @state/shown-annotations)]]
+   [related-container]])
+ 

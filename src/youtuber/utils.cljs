@@ -1,6 +1,7 @@
 (ns utils
   (:require
-      [cljs.pprint :refer [cl-format]]))
+      [cljs.pprint :refer [cl-format]]
+      [clojure.walk]))
 
 (defn log
   [obj]
@@ -15,3 +16,7 @@
 (defn convert-timestamp
   [seconds]
   (str (int (/ seconds 60)) ":" (cl-format nil "~2,'0d" (mod seconds 60))))
+
+(defn recursive-keywordize
+  [map]
+  (clojure.walk/keywordize-keys map))

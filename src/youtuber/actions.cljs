@@ -5,6 +5,8 @@
     [youtube]
     [state]))
 
+(def youtube-key "")
+
 (defn get-handler [response]
   (swap! state/store assoc :annotations (map utils/keywordize (:comments (utils/keywordize (js->clj response))))))
 
@@ -35,3 +37,16 @@
            :format :json
            :handler post-handler
            :error-handler error-handler}))))
+
+(defn get-related-handler [response]
+  (swap! state/store assoc :related (utils/recursive-keywordize (:items (utils/keywordize response)))))
+
+(defn get-related [id]
+  (GET (str
+        "https://www.googleapis.com/youtube/v3/search?part=snippet&relatedToVideoId="
+        id
+        "&type=video&key="
+        youtube-key)
+   {:handler get-related-handler}
+   :response-format :json
+    :error-handler error-handler))
